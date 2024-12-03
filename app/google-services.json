@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "380766523840",
+    "project_id": "mobileparkingsystem20",
+    "storage_bucket": "mobileparkingsystem20.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:380766523840:android:eee5e05894d8bec9757825",
+        "android_client_info": {
+          "package_name": "com.tuluss.mobileparkingsystem20"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBEeQ84LDztRHQddWRMQPL4gUp_OIdrwUc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
