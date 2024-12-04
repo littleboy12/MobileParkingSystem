@@ -29,11 +29,13 @@ class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
     private lateinit var rvAdapter: RvDataAdapter
     private lateinit var dataList: ArrayList<Data>
+    private lateinit var dataListLokasi: ArrayList<DataLokasi>
     private lateinit var firebaseref: DatabaseReference
     private lateinit var myLocation : FusedLocationProviderClient
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        println("COBA")
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -43,12 +45,16 @@ class MainActivity : AppCompatActivity() {
 
         // Inisialisasi RecyclerView
         dataList = ArrayList()
+        dataListLokasi = ArrayList()
+
         rvAdapter = RvDataAdapter(dataList)
         binding.rvData.layoutManager = LinearLayoutManager(this)
         binding.rvData.adapter = rvAdapter
 
         // Ambil data dari Firebase
         getData()
+        getDataLokasi()
+
 
         myLocation = LocationServices.getFusedLocationProviderClient(this)
         checkLocationPermission()
@@ -64,6 +70,91 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
+
+    private fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+        val radius = 6371.0 // Radius bumi dalam kilometer
+        val dLat = Math.toRadians(lat2 - lat1)
+        val dLon = Math.toRadians(lon2 - lon1)
+        val a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2)
+        val c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+        return radius * c
+    }
+
+
+    private fun getDataLokasi() {
+        val vLat = intent.getDoubleExtra("latituded", 0.0)
+        val vLong = intent.getDoubleExtra("longitude", 0.0)
+        val maxDistance = 3.0 // Maksimum jarak dalam kilometer
+
+        // Referensi ke Firebase lokasi
+        firebaseref = FirebaseDatabase.getInstance().getReference("lokasi")
+        firebaseref.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                dataListLokasi.clear()
+                val matchingIds = mutableListOf<String>() // List untuk menyimpan idLokasi yang cocok
+
+                if (snapshot.exists()) {
+                    for (dataSnap in snapshot.children) {
+                        val data = dataSnap.getValue(DataLokasi::class.java)
+                        if (data != null && data.latitude != null && data.longitude != null) {
+                            val distance = calculateDistance(vLat, vLong, data.latitude, data.longitude)
+                            if (distance <= maxDistance) {
+                                dataListLokasi.add(data)
+                                matchingIds.add(data.id ?: "") // Tambahkan idLokasi jika cocok
+                                println("Nama Lokasi: ${data.namaLokasi}")
+                                println("Jarak: $distance km")
+                            }
+                        }
+                    }
+                } else {
+                    Toast.makeText(this@MainActivity, "Data Kosong!", Toast.LENGTH_SHORT).show()
+                }
+
+                // Setelah menemukan lokasi yang relevan, ambil data parkiran berdasarkan idLokasi
+                if (matchingIds.isNotEmpty()) {
+                    getDataParkiran(matchingIds)
+                } else {
+                    Toast.makeText(this@MainActivity, "Tidak ada lokasi dalam jarak $maxDistance km!", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(this@MainActivity, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    // Fungsi untuk mengambil data parkiran berdasarkan idLokasi
+    private fun getDataParkiran(matchingIds: List<String>) {
+        firebaseref = FirebaseDatabase.getInstance().getReference("parkiran")
+        firebaseref.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                dataList.clear()
+
+                if (snapshot.exists()) {
+                    for (dataSnap in snapshot.children) {
+                        val data = dataSnap.getValue(Data::class.java)
+                        if (data != null && matchingIds.contains(data.idLokasi)) {
+                            dataList.add(data)
+                            println("Parkiran ID: ${data.namaTempat}, Lokasi ID: ${data.idLokasi}")
+                        }
+                    }
+                    rvAdapter.notifyDataSetChanged()
+                    binding.rvData.visibility = View.VISIBLE
+                } else {
+                    Toast.makeText(this@MainActivity, "Data parkiran kosong!", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(this@MainActivity, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+
 
     private fun getData() {
         firebaseref = FirebaseDatabase.getInstance().getReference("parkiran")
