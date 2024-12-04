@@ -39,10 +39,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         // Tombol navigasi ke MapsActivity
-        binding.maps.setOnClickListener {
-            val intent = Intent(this, MapsActivity::class.java)
-            startActivity(intent)
-        }
+
 
         // Inisialisasi RecyclerView
         dataList = ArrayList()
@@ -55,6 +52,17 @@ class MainActivity : AppCompatActivity() {
 
         myLocation = LocationServices.getFusedLocationProviderClient(this)
         checkLocationPermission()
+
+
+        binding.maps.setOnClickListener {
+            val searchLocation = binding.editLocation.text.toString()
+            val intent = Intent(this, MapsActivity::class.java)
+            intent.apply {
+                putExtra("search", searchLocation)
+            }
+            startActivity(intent)
+        }
+
     }
 
     private fun getData() {
@@ -107,7 +115,7 @@ class MainActivity : AppCompatActivity() {
                         val country = address.subLocality
 
                         val getName = address.getAddressLine(0).split(" ").take(2).joinToString(" ")
-                        binding.editTextText.setText("${getName}, ${city}")
+                        binding.editLocation.setText("${getName}, ${city}")
                     }
                 } else {
                     Toast.makeText(this, "Gagal mendapatkan lokasi", Toast.LENGTH_SHORT).show()
