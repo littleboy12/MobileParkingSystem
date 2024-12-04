@@ -3,11 +3,13 @@ package com.tuluss.mobileparkingsystem20
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.google.firebase.database.FirebaseDatabase
 import com.tuluss.mobileparkingsystem20.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityMainBinding
+//    private lateinit var firebase : FirebaseDatabase
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -21,6 +23,9 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+//        firebase = FirebaseDatabase.getInstance()
+//        firebase.reference.child("message").setValue("Hello World")
 
     }
 }
+
