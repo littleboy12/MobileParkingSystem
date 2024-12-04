@@ -1,6 +1,7 @@
 package com.tuluss.mobileparkingsystem20
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
@@ -115,6 +116,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         // Mengambil alamat pertama dari daftar
         val address = addressList[0]
         val latLng = LatLng(address.latitude, address.longitude)
+        binding.btnSetMap.setOnClickListener{
+            val intent = Intent(this, MainActivity::class.java)
+            intent.apply {
+                putExtra("latituded", address.latitude)
+                putExtra("longitude", address.longitude)
+            }
+            startActivity(intent)
+        }
 
         // Menambahkan marker di lokasi hasil pencarian
         mMap.addMarker(MarkerOptions().position(latLng).title(location))
