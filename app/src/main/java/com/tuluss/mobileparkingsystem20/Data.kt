@@ -5,5 +5,8 @@ data class Data(
     val kapasitasMobil: Int? = null,
     val kapasitasMotor: Int? = null,
     val idLokasi: String? = null,
-    val harga: Int? = null
+    val harga: Int? = null,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
+    val id_parkiran: String = ""
 )

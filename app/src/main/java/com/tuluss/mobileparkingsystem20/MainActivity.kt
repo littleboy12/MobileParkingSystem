@@ -3,18 +3,15 @@ package com.tuluss.mobileparkingsystem20
 import android.content.Intent
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.ContentValues.TAG
 import android.content.pm.PackageManager
 import android.location.Geocoder
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.database.DataSnapshot
@@ -33,27 +30,38 @@ class MainActivity : AppCompatActivity() {
     private lateinit var firebaseref: DatabaseReference
     private lateinit var myLocation : FusedLocationProviderClient
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
-        println("COBA")
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Tombol navigasi ke MapsActivity
-
-
-        // Inisialisasi RecyclerView
         dataList = ArrayList()
         dataListLokasi = ArrayList()
+        var userLogin = intent.getStringExtra("email")
+        println(userLogin)
 
-        rvAdapter = RvDataAdapter(dataList)
+
         binding.rvData.layoutManager = LinearLayoutManager(this)
+
+        rvAdapter = RvDataAdapter(dataList) {selectedData ->
+            val intent = Intent(this@MainActivity, DetailParkingActivity::class.java)
+                println("COBA TESS INI")
+                intent.putExtra("namaTempat", selectedData.namaTempat)
+                intent.putExtra("mobil", selectedData.kapasitasMobil)
+                intent.putExtra("motor", selectedData.kapasitasMotor)
+                intent.putExtra("biaya", selectedData.harga)
+                intent.putExtra("lat", selectedData.latitude)
+                intent.putExtra("long", selectedData.longitude)
+                intent.putExtra("id", selectedData.id_parkiran)
+                intent.putExtra("userLogin", userLogin)
+            startActivity(intent)
+        }
         binding.rvData.adapter = rvAdapter
 
         // Ambil data dari Firebase
+
+//        getDataLokasi()
         getData()
-        getDataLokasi()
 
 
         myLocation = LocationServices.getFusedLocationProviderClient(this)
@@ -65,6 +73,16 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, MapsActivity::class.java)
             intent.apply {
                 putExtra("search", searchLocation)
+                putExtra("userLogin", userLogin)
+            }
+            startActivity(intent)
+        }
+
+        binding.btnKendaraan.setOnClickListener{
+            val intent = Intent(this, KendaraanActivity::class.java)
+            intent.apply {
+                putExtra("userLogin", userLogin)
+                println("MENGIRIM ${userLogin}")
             }
             startActivity(intent)
         }
@@ -82,11 +100,13 @@ class MainActivity : AppCompatActivity() {
         return radius * c
     }
 
-
-    private fun getDataLokasi() {
-        val vLat = intent.getDoubleExtra("latituded", 0.0)
-        val vLong = intent.getDoubleExtra("longitude", 0.0)
+    private fun getDataLokasi(vLatGlobal: Double ,vLongGlobal: Double) {
+        val vLat = intent.getDoubleExtra("latituded", vLatGlobal)
+        val vLong = intent.getDoubleExtra("longitude", vLongGlobal)
         val maxDistance = 3.0 // Maksimum jarak dalam kilometer
+
+        System.out.println(vLong)
+        System.out.println(vLat)
 
         // Referensi ke Firebase lokasi
         firebaseref = FirebaseDatabase.getInstance().getReference("lokasi")
@@ -100,6 +120,7 @@ class MainActivity : AppCompatActivity() {
                         val data = dataSnap.getValue(DataLokasi::class.java)
                         if (data != null && data.latitude != null && data.longitude != null) {
                             val distance = calculateDistance(vLat, vLong, data.latitude, data.longitude)
+                            println("Jarak = ${distance}")
                             if (distance <= maxDistance) {
                                 dataListLokasi.add(data)
                                 matchingIds.add(data.id ?: "") // Tambahkan idLokasi jika cocok
@@ -116,6 +137,9 @@ class MainActivity : AppCompatActivity() {
                 if (matchingIds.isNotEmpty()) {
                     getDataParkiran(matchingIds)
                 } else {
+                    dataList.clear() // Pastikan data dihapus dari list
+                    rvAdapter.notifyDataSetChanged() // Beritahu adapter bahwa data kosong
+                    binding.rvData.visibility = View.INVISIBLE
                     Toast.makeText(this@MainActivity, "Tidak ada lokasi dalam jarak $maxDistance km!", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -131,20 +155,26 @@ class MainActivity : AppCompatActivity() {
         firebaseref = FirebaseDatabase.getInstance().getReference("parkiran")
         firebaseref.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                dataList.clear()
+                dataList.clear() // Bersihkan daftar sebelum menambahkan data baru
+                var dataFound = false // Penanda untuk cek apakah ada data yang sesuai
 
                 if (snapshot.exists()) {
                     for (dataSnap in snapshot.children) {
                         val data = dataSnap.getValue(Data::class.java)
                         if (data != null && matchingIds.contains(data.idLokasi)) {
                             dataList.add(data)
+                            dataFound = true
                             println("Parkiran ID: ${data.namaTempat}, Lokasi ID: ${data.idLokasi}")
                         }
                     }
+                }
+
+                if (dataFound) {
+                    // Jika ada data yang sesuai, perbarui adapter
                     rvAdapter.notifyDataSetChanged()
                     binding.rvData.visibility = View.VISIBLE
                 } else {
-                    Toast.makeText(this@MainActivity, "Data parkiran kosong!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, "Tidak ada data parkiran yang sesuai!", Toast.LENGTH_SHORT).show()
                 }
             }
 
@@ -153,7 +183,6 @@ class MainActivity : AppCompatActivity() {
             }
         })
     }
-
 
 
     private fun getData() {
@@ -204,9 +233,21 @@ class MainActivity : AppCompatActivity() {
                         val address = address[0]
                         val city = address.subAdminArea
                         val country = address.subLocality
+                        val searchLoc  = intent.getStringExtra("Lokasi")
 
                         val getName = address.getAddressLine(0).split(" ").take(2).joinToString(" ")
-                        binding.editLocation.setText("${getName}, ${city}")
+
+                        binding.ByLokasi.text = "Parkiran sekitar ${getName}, ${city}"
+                        if (searchLoc != null && searchLoc.isNotEmpty()) {
+                            binding.ByLokasi.text = "Parkiran sekitar ${searchLoc}"
+                            binding.editLocation.setText("${searchLoc}")
+//                            LatGlobal = address.latitude
+//                            vLongGlobal = address.longitudev
+                            getDataLokasi(address.latitude, address.longitude)
+                        } else {
+                            binding.ByLokasi.text = "Parkiran sekitar ${getName}, ${city}"
+                            binding.editLocation.setText("${getName}, ${city}")
+                        }
                     }
                 } else {
                     Toast.makeText(this, "Gagal mendapatkan lokasi", Toast.LENGTH_SHORT).show()
@@ -217,20 +258,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-//    override fun onRequestPermissionsResult(
-//        requestCode: Int,
-//        permissions: Array<out String>,
-//        grantResults: IntArray
-//    ) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-//        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
-//            if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-//                getCurrentLocation()
-//            } else {
-//                Toast.makeText(this, "Izin lokasi diperlukan", Toast.LENGTH_SHORT).show()
-//            }
-//        }
-//    }
 
     companion object {
         const val LOCATION_PERMISSION_REQUEST_CODE = 1000

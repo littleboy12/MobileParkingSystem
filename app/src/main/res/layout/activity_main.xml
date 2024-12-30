@@ -8,25 +8,50 @@
     android:fillViewport="true"
     tools:context=".MainActivity">
 
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="20dp"
         android:background="@color/bg_gray">
 
 
         <LinearLayout
-            android:layout_width="360dp"
-            android:layout_height="653dp"
-            android:layout_marginBottom="36dp"
+            android:layout_width="match_parent"
+            android:layout_height="87dp"
+            android:layout_margin="20dp"
+            android:background="@drawable/bg_shadow"
+            android:backgroundTint="#FFFFFF"
+            android:elevation="10dp"
+            android:gravity="center"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toTopOf="@+id/accessibility_custom_action_21"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/title" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/accessibility_custom_action_21"
+            android:layout_width="match_parent"
+            android:layout_height="617dp"
+            android:layout_margin="10dp"
             android:background="@drawable/bg_shadow"
             android:backgroundTint="#FFFFFF"
             android:elevation="10dp"
             android:orientation="vertical"
-            android:padding="25dp"
+            android:padding="15dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.49"
-            app:layout_constraintStart_toStartOf="parent">
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -64,7 +89,7 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:layout_width="282dp"
+                    android:layout_width="match_parent"
                     android:layout_height="50dp"
                     android:orientation="horizontal">
 
@@ -83,6 +108,7 @@
                         android:inputType="text"
                         android:paddingHorizontal="8dp"
                         android:text="Name"
+                        android:textColor="@color/black"
                         android:textSize="11sp" />
 
                     <Button
@@ -119,165 +145,59 @@
                 android:orientation="vertical"
                 android:padding="10dp">
 
+
                 <LinearLayout
-                    android:layout_width="175dp"
-                    android:layout_height="63dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="79dp"
                     android:layout_weight="1"
                     android:orientation="horizontal"
                     android:padding="4dp">
 
 
                     <ImageView
-                        android:layout_width="wrap_content"
+                        android:layout_width="46dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
                         android:src="@drawable/icon_park_parking" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="20dp"
                         android:layout_gravity="center_vertical"
-                        android:layout_weight="1"
                         android:fontFamily="@font/inter"
                         android:text="Parkiran Terdekat"
                         android:textColor="#000000"
                         android:textStyle="normal" />
                 </LinearLayout>
 
+                <TextView
+                    android:id="@+id/ByLokasi"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/inter"
+                    android:paddingHorizontal="10dp"
+                    android:text="Lokasi Terdekat Sekitar"
+                    android:textColor="@color/red_basic"
+                    android:textSize="10dp" />
+
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvData"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="348dp"
                     android:layout_marginTop="10dp"
                     android:layout_weight="1"
-                    android:visibility="gone"
+                    android:backgroundTint="@color/white"
+                    android:visibility="invisible"
                     tools:listitem="@layout/rv_data_item" />
-
-                <!--            <LinearLayout-->
-                <!--                android:layout_width="match_parent"-->
-                <!--                android:layout_height="156dp"-->
-                <!--                android:layout_marginHorizontal="12dp"-->
-                <!--                android:layout_marginVertical="10dp"-->
-                <!--                android:layout_weight="1"-->
-                <!--                android:background="@drawable/bg_shadow"-->
-                <!--                android:elevation="5dp"-->
-                <!--                android:orientation="vertical"-->
-                <!--                android:padding="10dp">-->
-
-                <!--                <TextView-->
-                <!--                    android:layout_width="103dp"-->
-                <!--                    android:layout_height="7dp"-->
-                <!--                    android:layout_gravity="center_vertical"-->
-                <!--                    android:layout_weight="1"-->
-                <!--                    android:fontFamily="@font/inter"-->
-                <!--                    android:text="Parkiran A"-->
-                <!--                    android:textColor="#000000"-->
-                <!--                    android:textStyle="normal" />-->
-
-                <!--                <LinearLayout-->
-                <!--                    android:layout_width="match_parent"-->
-                <!--                    android:layout_height="81dp"-->
-                <!--                    android:layout_marginTop="10dp"-->
-                <!--                    android:layout_weight="1"-->
-                <!--                    android:orientation="horizontal">-->
-
-                <!--                    <LinearLayout-->
-                <!--                        android:layout_width="145dp"-->
-                <!--                        android:layout_height="83dp"-->
-                <!--                        android:layout_margin="5dp"-->
-                <!--                        android:background="@drawable/bg_gray_shadow"-->
-                <!--                        android:elevation="5dp"-->
-                <!--                        android:orientation="vertical"-->
-                <!--                        android:padding="10dp">-->
-
-                <!--                        <TextView-->
-                <!--                            android:layout_width="98dp"-->
-                <!--                            android:layout_height="3dp"-->
-                <!--                            android:layout_gravity="center_vertical"-->
-                <!--                            android:layout_weight="1"-->
-                <!--                            android:fontFamily="@font/inter"-->
-                <!--                            android:text="Kapasitas"-->
-                <!--                            android:textColor="#000000"-->
-                <!--                            android:textSize="12dp"-->
-                <!--                            android:textStyle="normal" />-->
-
-                <!--                        <LinearLayout-->
-                <!--                            android:layout_width="match_parent"-->
-                <!--                            android:layout_height="wrap_content"-->
-                <!--                            android:layout_weight="1"-->
-                <!--                            android:orientation="horizontal">-->
-
-                <!--                            <ImageView-->
-                <!--                                android:id="@+id/imageView5"-->
-                <!--                                android:layout_width="30dp"-->
-                <!--                                android:layout_height="wrap_content"-->
-                <!--                                android:layout_gravity="center_vertical"-->
-                <!--                                android:src="@drawable/mdi_car" />-->
-
-                <!--                            <TextView-->
-                <!--                                android:layout_width="wrap_content"-->
-                <!--                                android:layout_height="wrap_content"-->
-                <!--                                android:layout_gravity="center_vertical"-->
-                <!--                                android:fontFamily="@font/inter"-->
-                <!--                                android:text="0/20"-->
-                <!--                                android:textColor="#000000" />-->
-
-                <!--                            <ImageView-->
-                <!--                                android:layout_width="30dp"-->
-                <!--                                android:layout_height="wrap_content"-->
-                <!--                                android:layout_gravity="center_vertical"-->
-                <!--                                android:src="@drawable/fontisto_motorcycle" />-->
-
-                <!--                            <TextView-->
-                <!--                                android:layout_width="wrap_content"-->
-                <!--                                android:layout_height="wrap_content"-->
-                <!--                                android:layout_gravity="center_vertical"-->
-                <!--                                android:fontFamily="@font/inter"-->
-                <!--                                android:text="0/20"-->
-                <!--                                android:textColor="#000000" />-->
-                <!--                        </LinearLayout>-->
-
-                <!--                    </LinearLayout>-->
-
-                <!--                    <LinearLayout-->
-                <!--                        android:layout_width="wrap_content"-->
-                <!--                        android:layout_height="81dp"-->
-                <!--                        android:layout_margin="5dp"-->
-                <!--                        android:background="@drawable/bg_gray_shadow"-->
-                <!--                        android:elevation="5dp"-->
-                <!--                        android:orientation="vertical"-->
-                <!--                        android:padding="10dp">-->
-
-                <!--                        <TextView-->
-                <!--                            android:layout_width="wrap_content"-->
-                <!--                            android:layout_height="15dp"-->
-                <!--                            android:layout_gravity="center_vertical"-->
-                <!--                            android:fontFamily="@font/inter"-->
-                <!--                            android:text="Biaya"-->
-                <!--                            android:textColor="#000000"-->
-                <!--                            android:textSize="12dp"-->
-                <!--                            android:textStyle="normal" />-->
-
-                <!--                        <ImageView-->
-                <!--                            android:layout_width="30dp"-->
-                <!--                            android:layout_height="wrap_content"-->
-                <!--                            android:layout_gravity="center_vertical"-->
-                <!--                            android:layout_marginTop="7dp"-->
-                <!--                            android:src="@drawable/tdesign_money" />-->
-
-                <!--                        <TextView-->
-                <!--                            android:layout_width="wrap_content"-->
-                <!--                            android:layout_height="wrap_content"-->
-                <!--                            android:layout_gravity="center_vertical"-->
-                <!--                            android:fontFamily="@font/inter"-->
-                <!--                            android:text="Rp. 2.000"-->
-                <!--                            android:textColor="#000000"-->
-                <!--                            android:textSize="9dp" />-->
-                <!--                    </LinearLayout>-->
-
-                <!--                </LinearLayout>-->
-                <!--            </LinearLayout>-->
-
+                <Button
+                    android:id="@+id/btnKendaraan"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:backgroundTint="@color/red_basic"
+                    android:background="@drawable/bg_shadow"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:elevation="10dp"
+                    android:text="Lihat Kendaraan Saya"/>
             </LinearLayout>
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

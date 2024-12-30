@@ -22,6 +22,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.tuluss.mobileparkingsystem20.databinding.ActivityMapsBinding
+import java.io.IOException
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -46,9 +47,70 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val vSearch = intent.getStringExtra("search")
 //
         binding.rvNamaTempat.setText("${vSearch}")
+
+
     }
 
+    private fun setLocationKendaraan(latKend: Double, longKend: Double) {
+        val geocoder = Geocoder(this)
+        var addressList: List<Address>?
+        val vLocation = intent.getStringExtra("lokasiByKendaraan")
+        val location = vLocation?.trim()
 
+        binding.rvNamaTempat.setText("${vLocation}")
+        try {
+            addressList = geocoder.getFromLocation(latKend, longKend, 1)
+            if (addressList.isNullOrEmpty()) {
+                Toast.makeText(this, "Lokasi tidak ditemukan", Toast.LENGTH_SHORT).show()
+                return
+            }
+        } catch (ioException: IOException) {
+            Toast.makeText(this, "Kesalahan jaringan: ${ioException.message}", Toast.LENGTH_SHORT).show()
+            return
+        } catch (exception: Exception) {
+            Toast.makeText(this, "Kesalahan tidak terduga: ${exception.message}", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (addressList.isNullOrEmpty()) {
+            Toast.makeText(this, "Lokasi tidak ditemukan", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Mengambil alamat pertama dari daftar
+        val address = addressList[0]
+        val city = address.subAdminArea
+        val getName = address.getAddressLine(0).split(" ").take(2).joinToString(" ")
+        val latLng = LatLng(address.latitude, address.longitude)
+        binding.btnSetMap.setOnClickListener{
+            val intent = Intent(this, MainActivity::class.java)
+            intent.apply {
+                putExtra("latituded", address.latitude)
+                putExtra("longitude", address.longitude)
+                putExtra("Lokasi", "${getName}, ${city}")
+            }
+            startActivity(intent)
+        }
+
+        // Menambahkan marker di lokasi hasil pencarian
+        mMap.addMarker(MarkerOptions().position(latLng).title(location))
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 20f))
+
+        // Menampilkan alamat lengkap di `rvAddress`
+        binding.rvAddress.setText(address.getAddressLine(0))
+
+        binding.btnSetMap.text = "Kembali"
+
+        val userLogin = intent.getStringExtra("userLogin")
+        binding.btnSetMap.setOnClickListener{
+            val intent = Intent(this, KendaraanActivity::class.java)
+            intent.apply {
+                putExtra("userLogin", userLogin)
+                println("MENGIRIM ${userLogin}")
+            }
+            startActivity(intent)
+        }
+    }
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
@@ -73,8 +135,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         val city = address.subAdminArea
                         val country = address.subLocality
                         val getName = address.getAddressLine(0).split(" ").take(2).joinToString(" ")
-                        mMap.addMarker(MarkerOptions().position(myLoc).title("${getName}, ${city}"))
-                        mMap.moveCamera(CameraUpdateFactory.newLatLng(myLoc))
+//                        mMap.addMarker(MarkerOptions().position(myLoc).title("${getName}, ${city}"))
+//                        mMap.moveCamera(CameraUpdateFactory.newLatLng(myLoc))
                     }
                 } else {
                     Toast.makeText(this, "Gagal mendapatkan lokasi", Toast.LENGTH_SHORT).show()
@@ -82,6 +144,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }.addOnFailureListener {
                 Toast.makeText(this, "Error: ${it.message}", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        val latKend = intent.getDoubleExtra("latByKendaraan", 0.0)
+        val longKend = intent.getDoubleExtra("longByKendaraan", 0.0)
+        if (latKend != 0.0) {
+            setLocationKendaraan(latKend, longKend)
         }
 
         searchLocation()
@@ -97,14 +165,19 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         val geocoder = Geocoder(this)
-        var addressList: List<Address>? = null
+        var addressList: List<Address>?
 
         try {
-            // Mengambil daftar lokasi berdasarkan nama
             addressList = geocoder.getFromLocationName(location, 1)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Toast.makeText(this, "Error mendapatkan lokasi: ${e.message}", Toast.LENGTH_SHORT).show()
+            if (addressList.isNullOrEmpty()) {
+                Toast.makeText(this, "Lokasi tidak ditemukan", Toast.LENGTH_SHORT).show()
+                return
+            }
+        } catch (ioException: IOException) {
+            Toast.makeText(this, "Kesalahan jaringan: ${ioException.message}", Toast.LENGTH_SHORT).show()
+            return
+        } catch (exception: Exception) {
+            Toast.makeText(this, "Kesalahan tidak terduga: ${exception.message}", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -115,19 +188,25 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // Mengambil alamat pertama dari daftar
         val address = addressList[0]
+        val city = address.subAdminArea
+        val getName = address.getAddressLine(0).split(" ").take(2).joinToString(" ")
         val latLng = LatLng(address.latitude, address.longitude)
+
+        val userLogin = intent.getStringExtra("userLogin")
         binding.btnSetMap.setOnClickListener{
             val intent = Intent(this, MainActivity::class.java)
             intent.apply {
                 putExtra("latituded", address.latitude)
                 putExtra("longitude", address.longitude)
+                putExtra("Lokasi", "${getName}, ${city}")
+                putExtra("email", userLogin)
             }
             startActivity(intent)
         }
 
         // Menambahkan marker di lokasi hasil pencarian
         mMap.addMarker(MarkerOptions().position(latLng).title(location))
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18f))
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 20f))
 
         // Menampilkan alamat lengkap di `rvAddress`
         binding.rvAddress.setText(address.getAddressLine(0))
