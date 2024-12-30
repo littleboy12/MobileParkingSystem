@@ -64,6 +64,9 @@ class LoginActivity : AppCompatActivity() {
                 if (it.isSuccessful) {
                     Toast.makeText(this, "Selamat Datang $email", Toast.LENGTH_SHORT).show()
                     val intent = Intent(this, MainActivity::class.java)
+                    intent.apply {
+                        intent.putExtra("email", email)
+                    }
                     startActivity(intent)
                 } else {
                     Toast.makeText(this, "${it.exception?.message}", Toast.LENGTH_SHORT).show()
